@@ -5,7 +5,7 @@ export default () => ({
 
     availableMockups: [
         { id: 'v-neck-short', label: 'V-Neck Short Sleeve' },
-        { id: 'v-neck comb-short', label: 'V-Neck Comb Short Sleeve' },
+        { id: 'v-neck combination-short', label: 'V-Neck Combination' },
         { id: 'o-neck-short', label: 'O-Neck Short Sleeve' }
     ],
 
