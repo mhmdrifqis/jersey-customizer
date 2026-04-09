@@ -24,6 +24,18 @@
 
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        @font-face { font-family: 'AC Milan 4th'; src: url('/assets/fonts/AC Milan 4th 23.woff2') format('woff2'); }
+        @font-face { font-family: 'Brøndby IF'; src: url('/assets/fonts/Brøndby IF 25-26.woff2') format('woff2'); }
+        @font-face { font-family: 'Girondins Bordeaux'; src: url('/assets/fonts/Girondins Bordeaux 25-26_Nero Design.woff2') format('woff2'); }
+        @font-face { font-family: 'Iraq 2025'; src: url('/assets/fonts/Iraq 2025_Nero Design.woff2') format('woff2'); }
+        @font-face { font-family: 'Osasuna 25-26'; src: url('/assets/fonts/Osasuna 25-26_NeroDesign.woff2') format('woff2'); }
+        @font-face { font-family: 'PSG Fourth'; src: url('/assets/fonts/PSG Fourth 25-26_Nero Design.woff2') format('woff2'); }
+        @font-face { font-family: 'Palermo FC'; src: url('/assets/fonts/Palermo FC 125 years 25-26_Nero Design.woff2') format('woff2'); }
+        @font-face { font-family: 'Portugal WC 2026'; src: url('/assets/fonts/Portugal WC 2026_Nero Design.woff2') format('woff2'); }
+        @font-face { font-family: 'SC Freiburg'; src: url('/assets/fonts/SC Freiburg 25-26_Nero Design.woff2') format('woff2'); }
+        @font-face { font-family: 'South Africa'; src: url('/assets/fonts/South Africa 25-26_Nero Design.woff2') format('woff2'); }
+        @font-face { font-family: 'Spain WC 2026'; src: url('/assets/fonts/Spain WC 2026_Nero Design.woff2') format('woff2'); }
     </style>
 </head>
 <body class="bg-slate-950 text-slate-100 h-screen overflow-hidden font-sans" x-data="customizer()" x-cloak>
@@ -221,28 +233,76 @@
                     </div>
                 </div>
 
-                <!-- Text -->
-                <div x-show="['name', 'number'].includes(activeMenu)" x-transition>
-                    <div class="space-y-6">
-                        <div>
-                            <label class="block text-[10px] font-medium text-slate-400 mb-3 uppercase tracking-widest" x-text="`Input ${activeMenuLabel}`"></label>
-                            <input type="text" x-model="jerseyTexts[activeMenu]" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 text-sm focus:border-indigo-500 focus:outline-none" :placeholder="`Ketik ${activeMenuLabel}...`" @keyup.enter="addText(activeMenu)">
-                        </div>
-                        <div class="grid grid-cols-6 gap-2 mb-4">
-                            <template x-for="color in colors" :key="activeMenu+color">
-                                <button @click="updateElementColor(color, activeMenu)" :style="`background-color: ${color}`" class="w-6 h-6 rounded-full border border-white/5"></button>
-                            </template>
-                            <button @click="$refs[activeMenu + 'Picker'].click()" class="w-6 h-6 rounded-full border border-white/20 bg-slate-800 flex items-center justify-center relative"><span class="text-[10px]">+</span><input type="color" :x-ref="activeMenu + 'Picker'" class="absolute inset-0 opacity-0 cursor-pointer" @input="updateElementColor($event.target.value, activeMenu)"></button>
-                        </div>
-                        <button @click="addText(activeMenu)" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl border border-slate-700 flex items-center justify-center gap-2 text-xs"><span>TAMBAH KE JERSEY</span></button>
-                    </div>
-                </div>
-                
                 <!-- Logo -->
                 <div x-show="activeMenu === 'logo'" x-transition>
                     <div @click="$refs.logoInput.click()" class="border-2 border-dashed border-slate-800 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-indigo-500/50 transition-colors">
                         <span class="text-xs font-medium text-slate-300">Upload Logo Baru</span>
                         <input type="file" x-ref="logoInput" class="hidden" @change="handleLogoUpload($event)" accept="image/*">
+                    </div>
+                </div>
+
+                <!-- Unified Text Panel -->
+                <div x-show="activeMenu === 'text'" x-transition class="space-y-6">
+                    <div>
+                        <label class="block text-[10px] font-medium text-slate-400 mb-3 uppercase tracking-widest">Input Teks</label>
+                        <div class="flex gap-2">
+                            <input type="text" x-model="textInput" @input="updateTextProperty('textInput', $event.target.value)" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 text-sm focus:border-indigo-500 focus:outline-none" placeholder="Ketik teks...">
+                            <button @click="addText()" class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-xl transition-all shadow-lg shadow-indigo-600/20">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="M12 5v14"/></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Fonts -->
+                    <div>
+                        <label class="block text-[10px] font-medium text-slate-400 mb-3 uppercase tracking-widest">Pilihan Font</label>
+                        <div class="grid grid-cols-2 gap-2 max-h-40 overflow-y-auto pr-1 no-scrollbar">
+                            <template x-for="f in availableFonts" :key="f.id">
+                                <button 
+                                    @click="updateFont('activeFont', f.id)"
+                                    :class="activeFont === f.id ? 'border-indigo-500 bg-indigo-500/10' : 'border-slate-800 hover:border-slate-700 bg-slate-950/30'"
+                                    class="p-2 border rounded-lg transition-all text-center group"
+                                >
+                                    <div class="text-sm text-slate-100 truncate" :style="`font-family: '${f.id}'`" x-text="'Abc 123'"></div>
+                                    <div class="text-[8px] text-slate-500 mt-1 uppercase" x-text="f.name"></div>
+                                </button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- Colors -->
+                    <div>
+                        <label class="block text-[10px] font-medium text-slate-400 mb-3 uppercase tracking-widest">Warna Teks</label>
+                        <div class="grid grid-cols-6 gap-2">
+                            <template x-for="color in colors" :key="'text'+color">
+                                <button @click="updateTextProperty('activeColor', color)" :style="`background-color: ${color}`" :class="activeColor === color ? 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-slate-900 scale-110' : ''" class="w-6 h-6 rounded-full border border-white/5 transition-all"></button>
+                            </template>
+                            <button @click="$refs.textPicker.click()" class="w-6 h-6 rounded-full border border-white/20 bg-slate-800 flex items-center justify-center relative"><span class="text-[10px]">+</span><input type="color" x-ref="textPicker" class="absolute inset-0 opacity-0 cursor-pointer" @input="updateTextProperty('activeColor', $event.target.value)"></button>
+                        </div>
+                    </div>
+
+                    <!-- Advanced Typography -->
+                    <div class="space-y-5 pt-4 border-t border-slate-800">
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <label class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Ukuran: <span class="text-indigo-400" x-text="textFontSize"></span>px</label>
+                            </div>
+                            <input type="range" min="10" max="250" step="1" x-model.number="textFontSize" @input="updateTextProperty('textFontSize', $event.target.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        </div>
+                        
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <label class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Jarak Huruf: <span class="text-indigo-400" x-text="textCharSpacing"></span></label>
+                            </div>
+                            <input type="range" min="-100" max="1000" step="10" x-model.number="textCharSpacing" @input="updateTextProperty('textCharSpacing', $event.target.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        </div>
+
+                        <div class="space-y-3">
+                            <div class="flex justify-between">
+                                <label class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Lengkungan: <span class="text-indigo-400" x-text="textArc"></span></label>
+                            </div>
+                            <input type="range" min="-300" max="300" step="1" x-model.number="textArc" @input="updateTextProperty('textArc', $event.target.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                        </div>
                     </div>
                 </div>
             </div>

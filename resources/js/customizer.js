@@ -73,10 +73,10 @@ export default () => ({
     // Dynamic parts based on LOADED layers
     get parts() {
         const availableParts = [];
-        const potentialParts = this.currentView === 'pants'
-            ? ['left', 'right', 'belt', 'list1', 'list2']
+        const potentialParts = this.currentView === 'pants' 
+            ? ['left', 'right', 'belt', 'list1', 'list2'] 
             : ['body', 'left_sleeve', 'right_sleeve', 'left_cuff', 'right_cuff', 'collar', 'collar1'];
-
+        
         potentialParts.forEach(pid => {
             if (this.layers[pid]) {
                 availableParts.push({ id: pid, label: this.partLabels[pid] || pid });
@@ -87,17 +87,35 @@ export default () => ({
 
     activePart: 'body',
     activePatternPart: 'body',
+    
+    availableFonts: [
+        { id: 'sans-serif', name: 'Standard' },
+        { id: 'AC Milan 4th', name: 'AC Milan' },
+        { id: 'Brøndby IF', name: 'Brøndby' },
+        { id: 'Girondins Bordeaux', name: 'Bordeaux' },
+        { id: 'Iraq 2025', name: 'Iraq' },
+        { id: 'Osasuna 25-26', name: 'Osasuna' },
+        { id: 'PSG Fourth', name: 'PSG' },
+        { id: 'Palermo FC', name: 'Palermo' },
+        { id: 'Portugal WC 2026', name: 'Portugal' },
+        { id: 'SC Freiburg', name: 'Freiburg' },
+        { id: 'South Africa', name: 'South Africa' },
+        { id: 'Spain WC 2026', name: 'Spain' }
+    ],
 
-    nameColor: '#ffffff',
-    numberColor: '#ffffff',
-    jerseyTexts: { name: '', number: '' },
+    // UNIVERSAL TEXT STATE
+    textInput: '',
+    activeFont: 'sans-serif',
+    activeColor: '#ffffff',
+    textFontSize: 40,
+    textCharSpacing: 0,
+    textArc: 0,
+
     isLoading: true,
     isPanelOpen: true,
     currentZoom: 1,
-
     showToolbar: false,
     toolbarPos: { top: 0, left: 0 },
-
     undoStack: [],
     redoStack: [],
     isHistoryAction: false,
@@ -106,8 +124,7 @@ export default () => ({
         { id: 'mockup', label: 'Mockup', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/></svg>' },
         { id: 'color', label: 'Warna', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="M2 12h2"/><path d="m4.93 19.07 1.41-1.41"/><path d="M12 20v2"/><path d="m17.66 17.66 1.41 1.41"/><path d="M20 12h2"/><path d="m17.66 6.34 1.41-1.41"/><circle cx="12" cy="12" r="4"/></svg>' },
         { id: 'pattern', label: 'Motif', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>' },
-        { id: 'number', label: 'Nomor', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10V4h-4"/><path d="M20 14v6h-4"/><path d="M4 10V4h4"/><path d="M4 14v6h4"/><path d="M12 4v16"/></svg>' },
-        { id: 'name', label: 'Nama', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>' },
+        { id: 'text', label: 'Teks', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M4 12h16"/><path d="M4 17h16"/></svg>' },
         { id: 'logo', label: 'Logo', icon: '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21"/></svg>' }
     ],
 
@@ -122,8 +139,7 @@ export default () => ({
         { id: 'p7', name: 'Motif 7', url: '/assets/patterns/pattern7.png' },
         { id: 'p8', name: 'Motif 8', url: '/assets/patterns/pattern8.png' },
         { id: 'p9', name: 'Motif 9', url: '/assets/patterns/pattern9.png' },
-        { id: 'p10', name: 'Motif 10', url: '/assets/patterns/pattern10.png' },
-
+        { id: 'p10', name: 'Motif 10', url: '/assets/patterns/pattern10.png' }
     ],
     layers: { shadows: null, highlights: null },
     designObjects: [],
@@ -139,13 +155,8 @@ export default () => ({
             });
             window.addEventListener('resize', () => this.resizeCanvas());
             window.addEventListener('keydown', (e) => {
-                if ((e.ctrlKey || e.metaKey) && e.key === 'z') {
-                    e.preventDefault();
-                    if (e.shiftKey) this.redo(); else this.undo();
-                }
-                if ((e.key === 'Delete' || e.key === 'Backspace') && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) {
-                    this.deleteSelected();
-                }
+                if ((e.ctrlKey || e.metaKey) && e.key === 'z') { e.preventDefault(); if (e.shiftKey) this.redo(); else this.undo(); }
+                if ((e.key === 'Delete' || e.key === 'Backspace') && !['INPUT', 'TEXTAREA'].includes(document.activeElement.tagName)) { this.deleteSelected(); }
             });
         });
     },
@@ -153,14 +164,11 @@ export default () => ({
     async initCanvas() {
         try {
             if (!window.fabric) throw new Error('Fabric.js not found!');
-            const fabric = window.fabric;
-            this.canvas = new fabric.Canvas('jersey-canvas', {
-                preserveObjectStacking: true,
-                backgroundColor: 'transparent',
-                width: 600, height: 600,
-                targetFindTolerance: 10,
-                perPixelTargetFind: true
+            this.canvas = new window.fabric.Canvas('jersey-canvas', {
+                preserveObjectStacking: true, backgroundColor: 'transparent',
+                width: 600, height: 600, targetFindTolerance: 10, perPixelTargetFind: true
             });
+
             this.resizeCanvas();
             await this.loadInitialLayers();
             this.saveHistory();
@@ -168,10 +176,7 @@ export default () => ({
             this.setupToolbarEvents();
             this.setupHistoryEvents();
             this.isLoading = false;
-        } catch (error) {
-            console.error('Error in initCanvas:', error);
-            this.isLoading = false;
-        }
+        } catch (error) { console.error('Error in initCanvas:', error); this.isLoading = false; }
     },
 
     setupHistoryEvents() {
@@ -184,9 +189,8 @@ export default () => ({
         if (this.isHistoryAction) return;
         const state = {
             viewStates: JSON.parse(JSON.stringify(this.viewStates)),
-            nameColor: this.nameColor,
-            numberColor: this.numberColor,
-            designObjects: this.designObjects.map(obj => obj.toObject(['clipPath', 'isSystemLayer', 'view'])),
+            textState: { input: this.textInput, font: this.activeFont, color: this.activeColor, size: this.textFontSize, spacing: this.textCharSpacing, arc: this.textArc },
+            designObjects: this.designObjects.map(obj => obj.toObject(['clipPath', 'isSystemLayer', 'view', 'arc'])),
             currentModel: this.currentModel,
             currentView: this.currentView
         };
@@ -213,11 +217,15 @@ export default () => ({
         this.isHistoryAction = true;
         this.isLoading = true;
         this.viewStates = state.viewStates;
-        this.nameColor = state.nameColor;
-        this.numberColor = state.numberColor;
+        this.textInput = state.textState.input;
+        this.activeFont = state.textState.font;
+        this.activeColor = state.textState.color;
+        this.textFontSize = state.textState.size;
+        this.textCharSpacing = state.textState.spacing;
+        this.textArc = state.textState.arc;
         this.currentModel = state.currentModel;
         this.currentView = state.currentView;
-
+        
         const fabric = window.fabric;
         const objects = await fabric.util.enlivenObjects(state.designObjects);
         this.designObjects = objects;
@@ -231,8 +239,8 @@ export default () => ({
 
     setupToolbarEvents() {
         this.canvas.on({
-            'selection:created': (e) => this.updateToolbar(e),
-            'selection:updated': (e) => this.updateToolbar(e),
+            'selection:created': (e) => this.syncUI(e),
+            'selection:updated': (e) => this.syncUI(e),
             'selection:cleared': () => { this.showToolbar = false; },
             'object:moving': (e) => this.updateToolbar(e),
             'object:scaling': (e) => this.updateToolbar(e),
@@ -240,52 +248,56 @@ export default () => ({
         });
     },
 
+    syncUI(e) {
+        this.updateToolbar(e);
+        const obj = e.selected[0];
+        if (obj && (obj.type === 'text' || obj.type === 'i-text')) {
+            this.activeMenu = 'text';
+            this.isPanelOpen = true;
+            this.textInput = obj.text;
+            this.activeFont = obj.fontFamily;
+            this.activeColor = obj.fill;
+            this.textFontSize = obj.fontSize;
+            this.textCharSpacing = obj.charSpacing;
+            this.textArc = obj.arc || 0;
+            this.resizeCanvas();
+        }
+    },
+
     async setModel(modelId) {
         if (this.currentModel === modelId) return;
-        this.isLoading = true;
-        this.currentModel = modelId;
-        // State is preserved in viewStates, just reload assets
-        await this.loadInitialLayers();
-        await this.updatePattern();
-        this.renderLayers();
-        this.isLoading = false;
-        this.saveHistory();
+        this.isLoading = true; this.currentModel = modelId;
+        await this.loadInitialLayers(); await this.updatePattern(); this.renderLayers();
+        this.isLoading = false; this.saveHistory();
     },
 
     async setView(view) {
         if (this.currentView === view) return;
-        this.isLoading = true;
-        this.currentView = view;
+        this.isLoading = true; this.currentView = view;
         this.activePart = view === 'pants' ? 'left' : 'body';
         this.activePatternPart = view === 'pants' ? 'left' : 'body';
-        await this.loadInitialLayers();
-        await this.updatePattern();
-        this.renderLayers();
+        await this.loadInitialLayers(); await this.updatePattern(); this.renderLayers();
         this.isLoading = false;
     },
 
     async loadInitialLayers() {
         const assetPath = `/assets/mockups/${this.currentModel}/${this.currentView}/`;
-        this.layers = {}; // Reset layers for current view
+        this.layers = {}; 
         try {
-            const potentialPartIds = this.currentView === 'pants'
-                ? ['left', 'right', 'belt', 'list1', 'list2']
+            const potentialPartIds = this.currentView === 'pants' 
+                ? ['left', 'right', 'belt', 'list1', 'list2'] 
                 : ['body', 'left_sleeve', 'right_sleeve', 'left_cuff', 'right_cuff', 'collar', 'collar1'];
 
             for (const pid of potentialPartIds) {
-                const fileName = `${pid}.png`;
-                const layer = await this.loadImage(assetPath + fileName, { isSystemLayer: true, selectable: false, evented: false });
+                const layer = await this.loadImage(assetPath + pid + '.png', { isSystemLayer: true, selectable: false, evented: false });
                 if (layer) this.layers[pid] = layer;
             }
 
             this.layers.shadows = await this.loadImage(assetPath + 'shadows.png', { isSystemLayer: true, selectable: false, evented: false, globalCompositeOperation: 'multiply' });
             this.layers.highlights = await this.loadImage(assetPath + 'highlights.png', { isSystemLayer: true, selectable: false, evented: false, globalCompositeOperation: 'screen' });
 
-            // Apply active colors to all loaded layers
             Object.keys(this.layers).forEach(pid => {
-                if (this.partColors.hasOwnProperty(pid)) {
-                    this.applyFilterToLayer(pid, this.partColors[pid]);
-                }
+                if (this.partColors.hasOwnProperty(pid)) this.applyFilterToLayer(pid, this.partColors[pid]);
             });
 
             this.renderLayers();
@@ -310,53 +322,32 @@ export default () => ({
     async updatePattern() {
         this.isLoading = true;
         this.layers.partPatterns = this.layers.partPatterns || {};
-        const partIds = Object.keys(this.partPatterns);
-
-        for (const pid of partIds) {
+        for (const pid of Object.keys(this.partPatterns)) {
             const patternId = this.partActivePatterns[pid];
             const isEnabled = this.partPatterns[pid];
             const patternObj = this.patterns.find(p => p.id === patternId);
-
-            if (!isEnabled || !patternObj || !this.layers[pid]) {
-                this.layers.partPatterns[pid] = null;
-                continue;
-            }
+            if (!isEnabled || !patternObj || !this.layers[pid]) { this.layers.partPatterns[pid] = null; continue; }
 
             const maskLayer = await this.layers[pid].clone(['isSystemLayer']);
-            const maskGroup = new window.fabric.Group([maskLayer], {
-                absolutePositioned: true, originX: 'center', originY: 'center', left: 300, top: 300
-            });
-
-            const scale = this.partPatternScales[pid] || 1;
-            const angle = this.partPatternAngles[pid] || 0;
-            const flipX = this.partPatternFlipX[pid] || false;
-            const flipY = this.partPatternFlipY[pid] || false;
+            const maskGroup = new window.fabric.Group([maskLayer], { absolutePositioned: true, originX: 'center', originY: 'center', left: 300, top: 300 });
 
             const pLayer = await this.loadImage(patternObj.url, {
-                selectable: false, evented: false, isSystemLayer: true,
-                clipPath: maskGroup, scaleX: scale, scaleY: scale, angle: angle,
-                flipX: flipX, flipY: flipY
+                selectable: false, evented: false, isSystemLayer: true, clipPath: maskGroup,
+                scaleX: this.partPatternScales[pid] || 1, scaleY: this.partPatternScales[pid] || 1, 
+                angle: this.partPatternAngles[pid] || 0, flipX: this.partPatternFlipX[pid] || false, flipY: this.partPatternFlipY[pid] || false
             });
 
-            if (pLayer) {
-                pLayer.filters = [new window.fabric.filters.BlendColor({ color: this.patternColor, mode: 'overlay', alpha: 1 })];
-                pLayer.applyFilters();
-            }
+            if (pLayer) { pLayer.filters = [new window.fabric.filters.BlendColor({ color: this.patternColor, mode: 'overlay', alpha: 1 })]; pLayer.applyFilters(); }
             this.layers.partPatterns[pid] = pLayer;
         }
-
-        this.renderLayers();
-        this.isLoading = false;
-        if (!this.isHistoryAction) this.saveHistory();
+        this.renderLayers(); this.isLoading = false; if (!this.isHistoryAction) this.saveHistory();
     },
 
     flipObject(axis) {
         const obj = this.canvas.getActiveObject();
         if (!obj) return;
-        if (axis === 'X') obj.set('flipX', !obj.flipX);
-        else obj.set('flipY', !obj.flipY);
-        this.canvas.requestRenderAll();
-        this.saveHistory();
+        if (axis === 'X') obj.set('flipX', !obj.flipX); else obj.set('flipY', !obj.flipY);
+        this.canvas.requestRenderAll(); this.saveHistory();
     },
 
     updatePatternFlip(axis) {
@@ -367,21 +358,13 @@ export default () => ({
     },
 
     updatePatternScale(val) {
-        const pid = this.activePatternPart;
-        this.activeState.partPatternScales[pid] = parseFloat(val);
-        if (this.layers.partPatterns && this.layers.partPatterns[pid]) {
-            this.layers.partPatterns[pid].set({ scaleX: val, scaleY: val });
-            this.canvas.requestRenderAll();
-        }
+        const pid = this.activePatternPart; this.activeState.partPatternScales[pid] = parseFloat(val);
+        if (this.layers.partPatterns && this.layers.partPatterns[pid]) { this.layers.partPatterns[pid].set({ scaleX: val, scaleY: val }); this.canvas.requestRenderAll(); }
     },
 
     updatePatternAngle(val) {
-        const pid = this.activePatternPart;
-        this.activeState.partPatternAngles[pid] = parseFloat(val);
-        if (this.layers.partPatterns && this.layers.partPatterns[pid]) {
-            this.layers.partPatterns[pid].set({ angle: val });
-            this.canvas.requestRenderAll();
-        }
+        const pid = this.activePatternPart; this.activeState.partPatternAngles[pid] = parseFloat(val);
+        if (this.layers.partPatterns && this.layers.partPatterns[pid]) { this.layers.partPatterns[pid].set({ angle: val }); this.canvas.requestRenderAll(); }
     },
 
     togglePartPattern(partId) {
@@ -395,115 +378,119 @@ export default () => ({
     async getMockupClipMask() {
         const maskLayers = [];
         const partIds = Object.keys(this.layers).filter(k => k !== 'shadows' && k !== 'highlights' && k !== 'partPatterns');
-        for (const pid of partIds) {
-            if (this.layers[pid]) maskLayers.push(await this.layers[pid].clone(['isSystemLayer']));
-        }
+        for (const pid of partIds) { if (this.layers[pid]) maskLayers.push(await this.layers[pid].clone(['isSystemLayer'])); }
         return maskLayers.length ? new window.fabric.Group(maskLayers, { absolutePositioned: true, originX: 'center', originY: 'center', left: 300, top: 300 }) : null;
     },
 
     renderLayers() {
         if (!this.canvas) return;
         this.canvas.clear();
-
-        // Render base parts in Z-Order
-        const zOrder = this.currentView === 'pants'
-            ? ['left', 'right', 'belt', 'list1', 'list2']
-            : ['body', 'left_sleeve', 'right_sleeve', 'left_cuff', 'right_cuff', 'collar', 'collar1'];
-
-        zOrder.forEach(key => {
-            if (this.layers[key]) this.canvas.add(this.layers[key]);
-        });
-
-        // Render patterns
-        if (this.layers.partPatterns) {
-            Object.values(this.layers.partPatterns).forEach(p => { if (p) this.canvas.add(p); });
-        }
-
-        // Render objects filtered by current view
+        const zOrder = this.currentView === 'pants' ? ['left', 'right', 'belt', 'list1', 'list2'] : ['body', 'left_sleeve', 'right_sleeve', 'left_cuff', 'right_cuff', 'collar', 'collar1'];
+        zOrder.forEach(key => { if (this.layers[key]) this.canvas.add(this.layers[key]); });
+        if (this.layers.partPatterns) { Object.values(this.layers.partPatterns).forEach(p => { if (p) this.canvas.add(p); }); }
         this.designObjects.filter(obj => obj.view === this.currentView).forEach(obj => this.canvas.add(obj));
-
         if (this.layers.shadows) this.canvas.add(this.layers.shadows);
         if (this.layers.highlights) this.canvas.add(this.layers.highlights);
         this.canvas.renderAll();
     },
 
-    updateElementColor(color, type = null) {
-        if (type === 'pattern') return this.updatePatternColor(color);
-        if (type === 'name') this.nameColor = color;
-        if (type === 'number') this.numberColor = color;
+    async updateTextProperty(key, val) {
         const activeObj = this.canvas.getActiveObject();
+        this[key] = val; 
         if (activeObj && (activeObj.type === 'i-text' || activeObj.type === 'text')) {
-            activeObj.set('fill', color);
-            this.canvas.requestRenderAll();
-            this.saveHistory();
+            if (key === 'textInput') activeObj.set('text', val);
+            if (key === 'activeColor') activeObj.set('fill', val);
+            if (key === 'activeFont') { await document.fonts.load(`10px "${val}"`); activeObj.set({ fontFamily: val }); }
+            if (key === 'textFontSize') activeObj.set({ fontSize: parseFloat(val) });
+            if (key === 'textCharSpacing') activeObj.set({ charSpacing: parseFloat(val) });
+            
+            if (key === 'textArc') {
+                activeObj.arc = parseFloat(val);
+                this.applyArcToText(activeObj);
+            }
+            this.canvas.renderAll();
         }
     },
 
-    updatePatternColor(color = null) {
-        if (color) { this.activeState.patternColor = color; this.saveHistory(); }
-        if (!this.layers.partPatterns) return;
-        Object.values(this.layers.partPatterns).forEach(p => {
-            if (p) {
-                p.filters = [new window.fabric.filters.BlendColor({ color: this.patternColor, mode: 'overlay', alpha: 1 })];
-                p.applyFilters();
-            }
+    applyArcToText(obj) {
+        if (!obj || !obj.text) return;
+        const charCount = obj.text.length;
+        const arcValue = obj.arc || 0;
+        const fontSize = obj.fontSize;
+        const charSpacing = obj.charSpacing || 0;
+        
+        // Reset styles for fresh render
+        obj.set({ styles: {} });
+        if (Math.abs(arcValue) < 1) return;
+
+        // HIGHLY FLEXIBLE ARC LOGIC
+        // Radius is inversely proportional to arc value
+        const radius = 20000 / arcValue; 
+        const circumference = 2 * Math.PI * Math.abs(radius);
+        const anglePerChar = ((fontSize * 0.7) + (charSpacing / 10)) / radius;
+        const totalAngle = anglePerChar * (charCount - 1);
+        const startAngle = -totalAngle / 2;
+
+        obj.styles[0] = {};
+        for (let i = 0; i < charCount; i++) {
+            const charAngle = startAngle + (i * anglePerChar);
+            const xOffset = Math.sin(charAngle) * radius;
+            const yOffset = radius - (Math.cos(charAngle) * radius);
+            
+            // Invert Y for upside down arcs
+            const finalY = arcValue > 0 ? yOffset : yOffset; 
+            
+            obj.styles[0][i] = {
+                deltaY: -finalY,
+                // Fabric.js character rotation is tricky, we'll focus on Y offset for now
+            };
+        }
+    },
+
+    updateFont(type, fontId) {
+        this.activeFont = fontId;
+        document.fonts.load(`10px "${fontId}"`).then(() => { this.updateTextProperty('activeFont', fontId); this.saveHistory(); });
+    },
+
+    async addText() {
+        const clipMask = await this.getMockupClipMask();
+        await document.fonts.load(`10px "${this.activeFont}"`);
+        const newText = new window.fabric.IText(this.textInput || 'TEKS BARU', {
+            left: 300, top: 300, originX: 'center', originY: 'center', fill: this.activeColor,
+            fontFamily: this.activeFont, fontSize: this.textFontSize, charSpacing: this.textCharSpacing,
+            cornerStyle: 'circle', cornerColor: '#6366f1', clipPath: clipMask, view: this.currentView, arc: this.textArc
         });
-        this.canvas.renderAll();
+        if (this.textArc !== 0) this.applyArcToText(newText);
+        this.designObjects.push(newText); this.renderLayers(); this.canvas.setActiveObject(newText);
     },
 
     updateToolbar(e) {
-        const obj = e.target;
+        const obj = e.target || (e.selected && e.selected[0]);
         if (!obj || obj.isSystemLayer) { this.showToolbar = false; return; }
-        const rect = obj.getBoundingRect();
-        const vpt = this.canvas.viewportTransform;
+        const rect = obj.getBoundingRect(); const vpt = this.canvas.viewportTransform;
         this.toolbarPos = { top: (rect.top * vpt[0] + vpt[5]) - 70, left: (rect.left * vpt[0] + vpt[4]) + (rect.width * vpt[0] / 2) };
         this.showToolbar = true;
     },
 
     async duplicateSelected() {
-        const obj = this.canvas.getActiveObject();
-        if (!obj) return;
-        const clone = await obj.clone(['clipPath', 'isSystemLayer', 'view']);
+        const obj = this.canvas.getActiveObject(); if (!obj) return;
+        const clone = await obj.clone(['clipPath', 'isSystemLayer', 'view', 'arc']);
         clone.set({ left: obj.left + 20, top: obj.top + 20 });
-        this.designObjects.push(clone);
-        this.renderLayers();
-        this.canvas.setActiveObject(clone);
+        this.designObjects.push(clone); this.renderLayers(); this.canvas.setActiveObject(clone);
     },
 
     setupZoomEvents() {
         this.canvas.on('mouse:wheel', (opt) => {
-            let zoom = this.canvas.getZoom() * (0.999 ** opt.e.deltaY);
-            zoom = Math.min(Math.max(zoom, 0.5), 5);
-            this.canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom);
-            this.currentZoom = zoom; this.showToolbar = false;
+            let zoom = this.canvas.getZoom() * (0.999 ** opt.e.deltaY); zoom = Math.min(Math.max(zoom, 0.5), 5);
+            this.canvas.zoomToPoint({ x: opt.e.offsetX, y: opt.e.offsetY }, zoom); this.currentZoom = zoom; this.showToolbar = false;
             opt.e.preventDefault(); opt.e.stopPropagation();
         });
     },
 
-    zoom(delta) {
-        let zoom = Math.min(Math.max(this.canvas.getZoom() + delta, 0.5), 5);
-        this.canvas.zoomToPoint({ x: 300, y: 300 }, zoom); this.currentZoom = zoom;
-    },
-
+    zoom(delta) { let zoom = Math.min(Math.max(this.canvas.getZoom() + delta, 0.5), 5); this.canvas.zoomToPoint({ x: 300, y: 300 }, zoom); this.currentZoom = zoom; },
     resetZoom() { this.canvas.setZoom(1); this.canvas.setViewportTransform([1, 0, 0, 1, 0, 0]); this.currentZoom = 1; this.resizeCanvas(); },
-
     async loadImage(url, options = {}) {
-        try {
-            const img = await window.fabric.FabricImage.fromURL(url, { crossOrigin: 'anonymous' });
-            img.scaleToWidth(600); img.set({ originX: 'center', originY: 'center', left: 300, top: 300, ...options });
-            return img;
-        } catch (err) { return null; }
-    },
-
-    async addText(type) {
-        const clipMask = await this.getMockupClipMask();
-        const config = type === 'name' ? { top: 180, fontSize: 30 } : { top: 300, fontSize: 120 };
-        const newText = new window.fabric.IText(this.jerseyTexts[type], {
-            left: 300, originX: 'center', fill: type === 'name' ? this.nameColor : this.numberColor,
-            fontFamily: 'sans-serif', cornerStyle: 'circle', cornerColor: '#6366f1', clipPath: clipMask,
-            view: this.currentView, ...config
-        });
-        this.designObjects.push(newText); this.renderLayers(); this.canvas.setActiveObject(newText);
+        try { const img = await window.fabric.FabricImage.fromURL(url, { crossOrigin: 'anonymous' }); img.scaleToWidth(600); img.set({ originX: 'center', originY: 'center', left: 300, top: 300, ...options }); return img; } catch (err) { return null; }
     },
 
     handleLogoUpload(event) {
@@ -517,21 +504,8 @@ export default () => ({
         };
         reader.readAsDataURL(file);
     },
-
     setActiveMenu(menuId) { if (this.activeMenu === menuId) this.togglePanel(); else { this.activeMenu = menuId; this.isPanelOpen = true; setTimeout(() => this.resizeCanvas(), 350); } },
-
-    deleteSelected() {
-        const obj = this.canvas.getActiveObject();
-        if (obj) { this.canvas.remove(obj); this.designObjects = this.designObjects.filter(o => o !== obj); this.showToolbar = false; }
-    },
-
-    resizeCanvas() {
-        try {
-            const container = document.querySelector('main .relative');
-            if (!container || !this.canvas || this.currentZoom !== 1) return;
-            const size = Math.min(container.clientWidth - 40, 600);
-            this.canvas.setDimensions({ width: size, height: size }); this.canvas.setZoom(size / 600);
-        } catch (err) { }
-    },
+    deleteSelected() { const obj = this.canvas.getActiveObject(); if (obj) { this.canvas.remove(obj); this.designObjects = this.designObjects.filter(o => o !== obj); this.showToolbar = false; } },
+    resizeCanvas() { try { const container = document.querySelector('main .relative'); if (!container || !this.canvas || this.currentZoom !== 1) return; const size = Math.min(container.clientWidth - 40, 600); this.canvas.setDimensions({ width: size, height: size }); this.canvas.setZoom(size / 600); } catch (err) { } },
     togglePanel() { this.isPanelOpen = !this.isPanelOpen; setTimeout(() => this.resizeCanvas(), 350); }
 });
