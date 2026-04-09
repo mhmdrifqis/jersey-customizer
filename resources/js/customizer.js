@@ -113,9 +113,17 @@ export default () => ({
 
     colors: ['#ffffff', '#000000', '#ef4444', '#3b82f6', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#475569', '#1e293b'],
     patterns: [
-        { id: 'p1', name: 'Abstract Stripes', url: '/assets/jersey-layers/pattern1.png' },
-        { id: 'p2', name: 'Hexagon Mesh', url: '/assets/jersey-layers/pattern2.png' },
-        { id: 'p3', name: 'Jersey Pattern Main', url: '/assets/jersey-layers/patterns.png' }
+        { id: 'p1', name: 'Motif 1', url: '/assets/patterns/pattern1.png' },
+        { id: 'p2', name: 'Motif 2', url: '/assets/patterns/pattern2.png' },
+        { id: 'p3', name: 'Motif 3', url: '/assets/patterns/pattern3.png' },
+        { id: 'p4', name: 'Motif 4', url: '/assets/patterns/pattern4.png' },
+        { id: 'p5', name: 'Motif 5', url: '/assets/patterns/pattern5.png' },
+        { id: 'p6', name: 'Motif 6', url: '/assets/patterns/pattern6.png' },
+        { id: 'p7', name: 'Motif 7', url: '/assets/patterns/pattern7.png' },
+        { id: 'p8', name: 'Motif 8', url: '/assets/patterns/pattern8.png' },
+        { id: 'p9', name: 'Motif 9', url: '/assets/patterns/pattern9.png' },
+        { id: 'p10', name: 'Motif 10', url: '/assets/patterns/pattern10.png' },
+
     ],
     layers: { shadows: null, highlights: null },
     designObjects: [],
