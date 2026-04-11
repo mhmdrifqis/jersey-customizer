@@ -4,9 +4,33 @@ export default () => ({
     currentView: 'front', // 'front', 'back', 'pants'
 
     availableMockups: [
-        { id: 'v-neck-short', label: 'V-Neck Short Sleeve' },
-        { id: 'v-neck combination-short', label: 'V-Neck Combination' },
-        { id: 'o-neck-short', label: 'O-Neck Short Sleeve' }
+        {
+            id: 'v-neck-short',
+            label: 'V-Neck Short Sleeve',
+            parts: {
+                front: ['body', 'collar', 'left_sleeve', 'right_sleeve', 'left_cuff', 'right_cuff'],
+                back: ['body', 'collar', 'left_sleeve', 'right_sleeve', 'left_cuff', 'right_cuff'],
+                pants: ['left', 'right', 'belt', 'list1', 'list2']
+            }
+        },
+        {
+            id: 'v-neck combination-short',
+            label: 'V-Neck Combination',
+            parts: {
+                front: ['body', 'collar', 'collar1', 'left_sleeve', 'right_sleeve', 'left_cuff', 'right_cuff'],
+                back: ['body', 'collar', 'left_sleeve', 'right_sleeve', 'left_cuff', 'right_cuff'],
+                pants: ['left', 'right', 'belt', 'list1', 'list2']
+            }
+        },
+        {
+            id: 'o-neck-short',
+            label: 'O-Neck Short Sleeve',
+            parts: {
+                front: ['body', 'collar', 'left_sleeve', 'right_sleeve', 'left_cuff', 'right_cuff'],
+                back: ['body', 'collar', 'left_sleeve', 'right_sleeve', 'left_cuff', 'right_cuff'],
+                pants: ['left', 'right', 'belt', 'list1', 'list2']
+            }
+        }
     ],
 
     // Labels for all possible parts
@@ -29,23 +53,23 @@ export default () => ({
     viewStates: {
         front: {
             partColors: { body: '#ffffff', left_sleeve: '#ffffff', right_sleeve: '#ffffff', left_cuff: '#ffffff', right_cuff: '#ffffff', collar: '#ffffff', collar1: '#ffffff' },
-            partPatterns: { body: false, left_sleeve: false, right_sleeve: false, collar: false, collar1: false },
-            partPatternScales: { body: 1, left_sleeve: 1, right_sleeve: 1, collar: 1, collar1: 1 },
-            partPatternAngles: { body: 0, left_sleeve: 0, right_sleeve: 0, collar: 0, collar1: 0 },
-            partPatternFlipX: { body: false, left_sleeve: false, right_sleeve: false, collar: false, collar1: false },
-            partPatternFlipY: { body: false, left_sleeve: false, right_sleeve: false, collar: false, collar1: false },
-            partActivePatterns: { body: null, left_sleeve: null, right_sleeve: null, collar: null, collar1: null },
-            patternColor: '#000000'
+            partPatterns: { body: false, left_sleeve: false, right_sleeve: false, collar: false, collar1: false, left_cuff: false, right_cuff: false },
+            partPatternScales: { body: 1, left_sleeve: 1, right_sleeve: 1, collar: 1, collar1: 1, left_cuff: 1, right_cuff: 1 },
+            partPatternAngles: { body: 0, left_sleeve: 0, right_sleeve: 0, collar: 0, collar1: 0, left_cuff: 0, right_cuff: 0 },
+            partPatternFlipX: { body: false, left_sleeve: false, right_sleeve: false, collar: false, collar1: false, left_cuff: false, right_cuff: false },
+            partPatternFlipY: { body: false, left_sleeve: false, right_sleeve: false, collar: false, collar1: false, left_cuff: false, right_cuff: false },
+            partActivePatterns: { body: null, left_sleeve: null, right_sleeve: null, collar: null, collar1: null, left_cuff: null, right_cuff: null },
+            partPatternColors: { body: '#000000', left_sleeve: '#000000', right_sleeve: '#000000', collar: '#000000', collar1: '#000000', left_cuff: '#000000', right_cuff: '#000000' }
         },
         back: {
             partColors: { body: '#ffffff', left_sleeve: '#ffffff', right_sleeve: '#ffffff', left_cuff: '#ffffff', right_cuff: '#ffffff', collar: '#ffffff', collar1: '#ffffff' },
-            partPatterns: { body: false, left_sleeve: false, right_sleeve: false, collar: false, collar1: false },
-            partPatternScales: { body: 1, left_sleeve: 1, right_sleeve: 1, collar: 1, collar1: 1 },
-            partPatternAngles: { body: 0, left_sleeve: 0, right_sleeve: 0, collar: 0, collar1: 0 },
-            partPatternFlipX: { body: false, left_sleeve: false, right_sleeve: false, collar: false, collar1: false },
-            partPatternFlipY: { body: false, left_sleeve: false, right_sleeve: false, collar: false, collar1: false },
-            partActivePatterns: { body: null, left_sleeve: null, right_sleeve: null, collar: null, collar1: null },
-            patternColor: '#000000'
+            partPatterns: { body: false, left_sleeve: false, right_sleeve: false, collar: false, collar1: false, left_cuff: false, right_cuff: false },
+            partPatternScales: { body: 1, left_sleeve: 1, right_sleeve: 1, collar: 1, collar1: 1, left_cuff: 1, right_cuff: 1 },
+            partPatternAngles: { body: 0, left_sleeve: 0, right_sleeve: 0, collar: 0, collar1: 0, left_cuff: 0, right_cuff: 0 },
+            partPatternFlipX: { body: false, left_sleeve: false, right_sleeve: false, collar: false, collar1: false, left_cuff: false, right_cuff: false },
+            partPatternFlipY: { body: false, left_sleeve: false, right_sleeve: false, collar: false, collar1: false, left_cuff: false, right_cuff: false },
+            partActivePatterns: { body: null, left_sleeve: null, right_sleeve: null, collar: null, collar1: null, left_cuff: null, right_cuff: null },
+            partPatternColors: { body: '#000000', left_sleeve: '#000000', right_sleeve: '#000000', collar: '#000000', collar1: '#000000', left_cuff: '#000000', right_cuff: '#000000' }
         },
         pants: {
             partColors: { left: '#ffffff', right: '#ffffff', belt: '#ffffff', list1: '#ffffff', list2: '#ffffff' },
@@ -55,7 +79,7 @@ export default () => ({
             partPatternFlipX: { left: false, right: false, belt: false, list1: false, list2: false },
             partPatternFlipY: { left: false, right: false, belt: false, list1: false, list2: false },
             partActivePatterns: { left: null, right: null, belt: null, list1: null, list2: null },
-            patternColor: '#000000'
+            partPatternColors: { left: '#000000', right: '#000000', belt: '#000000', list1: '#000000', list2: '#000000' }
         }
     },
 
@@ -68,15 +92,16 @@ export default () => ({
     get partPatternFlipX() { return this.activeState.partPatternFlipX; },
     get partPatternFlipY() { return this.activeState.partPatternFlipY; },
     get partActivePatterns() { return this.activeState.partActivePatterns; },
-    get patternColor() { return this.activeState.patternColor; },
+    get partPatternColors() { return this.activeState.partPatternColors; },
+    get patternColor() { return this.partPatternColors[this.activePatternPart] || '#000000'; },
 
     // Dynamic parts based on LOADED layers
     get parts() {
         const availableParts = [];
-        const potentialParts = this.currentView === 'pants' 
-            ? ['left', 'right', 'belt', 'list1', 'list2'] 
+        const potentialParts = this.currentView === 'pants'
+            ? ['left', 'right', 'belt', 'list1', 'list2']
             : ['body', 'left_sleeve', 'right_sleeve', 'left_cuff', 'right_cuff', 'collar', 'collar1'];
-        
+
         potentialParts.forEach(pid => {
             if (this.layers[pid]) {
                 availableParts.push({ id: pid, label: this.partLabels[pid] || pid });
@@ -87,7 +112,7 @@ export default () => ({
 
     activePart: 'body',
     activePatternPart: 'body',
-    
+
     availableFonts: [
         { id: 'sans-serif', name: 'Standard' },
         { id: 'AC Milan 4th', name: 'AC Milan' },
@@ -106,7 +131,7 @@ export default () => ({
     // UNIVERSAL TEXT STATE
     textInput: '',
     activeFont: 'sans-serif',
-    activeColor: '#ffffff',
+    activeColor: '#000000ff',
     textFontSize: 40,
     textCharSpacing: 0,
     textArc: 0,
@@ -180,9 +205,15 @@ export default () => ({
     },
 
     setupHistoryEvents() {
-        this.canvas.on('object:modified', () => this.saveHistory());
-        this.canvas.on('object:added', (e) => { if (e.target.isSystemLayer) return; this.saveHistory(); });
-        this.canvas.on('object:removed', (e) => { if (e.target.isSystemLayer) return; this.saveHistory(); });
+        this.canvas.on('object:modified', () => { if (this.isHistoryAction) return; this.saveHistory(); });
+        this.canvas.on('object:added', (e) => {
+            if (this.isHistoryAction || e.target.isSystemLayer) return;
+            this.saveHistory();
+        });
+        this.canvas.on('object:removed', (e) => {
+            if (this.isHistoryAction || e.target.isSystemLayer) return;
+            this.saveHistory();
+        });
     },
 
     saveHistory() {
@@ -201,7 +232,8 @@ export default () => ({
 
     async undo() {
         if (this.undoStack.length <= 1) return;
-        this.undoStack.pop();
+        const currentStateStr = this.undoStack.pop();
+        this.redoStack.push(currentStateStr);
         const prevState = JSON.parse(this.undoStack[this.undoStack.length - 1]);
         await this.applyState(prevState);
     },
@@ -209,8 +241,12 @@ export default () => ({
     async redo() {
         if (this.redoStack.length === 0) return;
         const nextStateStr = this.redoStack.pop();
+        // Save the remaining redo stack before applyState can clear it
+        const savedRedoStack = [...this.redoStack];
         this.undoStack.push(nextStateStr);
         await this.applyState(JSON.parse(nextStateStr));
+        // Restore redo stack (applyState -> loadInitialLayers/updatePattern -> saveHistory clears it)
+        this.redoStack = savedRedoStack;
     },
 
     async applyState(state) {
@@ -225,7 +261,7 @@ export default () => ({
         this.textArc = state.textState.arc;
         this.currentModel = state.currentModel;
         this.currentView = state.currentView;
-        
+
         const fabric = window.fabric;
         const objects = await fabric.util.enlivenObjects(state.designObjects);
         this.designObjects = objects;
@@ -267,37 +303,70 @@ export default () => ({
     async setModel(modelId) {
         if (this.currentModel === modelId) return;
         this.isLoading = true; this.currentModel = modelId;
+        const wasHistoryAction = this.isHistoryAction;
+        this.isHistoryAction = true;
         await this.loadInitialLayers(); await this.updatePattern(); this.renderLayers();
+        this.isHistoryAction = wasHistoryAction;
         this.isLoading = false; this.saveHistory();
     },
 
     async setView(view) {
         if (this.currentView === view) return;
         this.isLoading = true; this.currentView = view;
-        this.activePart = view === 'pants' ? 'left' : 'body';
-        this.activePatternPart = view === 'pants' ? 'left' : 'body';
+
+        // Dynamic active part selection based on what exists in the new view
+        const mockup = this.availableMockups.find(m => m.id === this.currentModel);
+        const viewParts = mockup?.parts[view] || [];
+
+        if (view === 'pants') {
+            this.activePart = viewParts.includes('left') ? 'left' : viewParts[0];
+        } else {
+            this.activePart = viewParts.includes('body') ? 'body' : viewParts[0];
+        }
+        this.activePatternPart = this.activePart;
+
+        const wasHistoryAction = this.isHistoryAction;
+        this.isHistoryAction = true;
         await this.loadInitialLayers(); await this.updatePattern(); this.renderLayers();
+        this.isHistoryAction = wasHistoryAction;
         this.isLoading = false;
     },
 
     async loadInitialLayers() {
         const assetPath = `/assets/mockups/${this.currentModel}/${this.currentView}/`;
-        this.layers = {}; 
-        try {
-            const potentialPartIds = this.currentView === 'pants' 
-                ? ['left', 'right', 'belt', 'list1', 'list2'] 
-                : ['body', 'left_sleeve', 'right_sleeve', 'left_cuff', 'right_cuff', 'collar', 'collar1'];
 
+        // Clean up previous layers to avoid "ghost" layers from previous mockups
+        const oldLayers = Object.keys(this.layers);
+        oldLayers.forEach(key => {
+            if (this.layers[key] && key !== 'partPatterns') {
+                if (this.canvas) this.canvas.remove(this.layers[key]);
+                this.layers[key] = null;
+            }
+        });
+
+        this.layers = { shadows: null, highlights: null, partPatterns: this.layers.partPatterns || {} };
+
+        try {
+            const mockup = this.availableMockups.find(m => m.id === this.currentModel);
+            const potentialPartIds = mockup?.parts[this.currentView] || (this.currentView === 'pants'
+                ? ['left', 'right', 'belt', 'list1', 'list2']
+                : ['body', 'left_sleeve', 'right_sleeve', 'left_cuff', 'right_cuff', 'collar']);
+
+            // Load actual layers
             for (const pid of potentialPartIds) {
                 const layer = await this.loadImage(assetPath + pid + '.png', { isSystemLayer: true, selectable: false, evented: false });
                 if (layer) this.layers[pid] = layer;
             }
 
+            // Load shadows & highlights (always expected)
             this.layers.shadows = await this.loadImage(assetPath + 'shadows.png', { isSystemLayer: true, selectable: false, evented: false, globalCompositeOperation: 'multiply' });
             this.layers.highlights = await this.loadImage(assetPath + 'highlights.png', { isSystemLayer: true, selectable: false, evented: false, globalCompositeOperation: 'screen' });
 
+            // Re-apply colors to new layers
             Object.keys(this.layers).forEach(pid => {
-                if (this.partColors.hasOwnProperty(pid)) this.applyFilterToLayer(pid, this.partColors[pid]);
+                if (this.partColors.hasOwnProperty(pid) && this.layers[pid]) {
+                    this.applyFilterToLayer(pid, this.partColors[pid]);
+                }
             });
 
             this.renderLayers();
@@ -307,7 +376,13 @@ export default () => ({
     async applyFilterToLayer(partId, color) {
         const layer = this.layers[partId];
         if (!layer || !window.fabric) return;
-        layer.filters = [new window.fabric.filters.BlendColor({ color: color, mode: 'overlay', alpha: 1 })];
+
+        // Use 'multiply' for better color accuracy on white fabric
+        layer.filters = [new window.fabric.filters.BlendColor({
+            color: color,
+            mode: 'multiply',
+            alpha: 1
+        })];
         layer.applyFilters();
     },
 
@@ -319,9 +394,45 @@ export default () => ({
         if (saveHistory) this.saveHistory();
     },
 
+    async updatePatternColor(color) {
+        const pid = this.activePatternPart;
+        this.activeState.partPatternColors[pid] = color;
+
+        let hasUpdated = false;
+        if (this.layers.partPatterns && this.layers.partPatterns[pid]) {
+            const pLayer = this.layers.partPatterns[pid];
+            if (pLayer && window.fabric) {
+                // 'add' mode works on dark/black pixels: adds color value to each pixel channel
+                pLayer.filters = [new window.fabric.filters.BlendColor({
+                    color: color,
+                    mode: 'add',
+                    alpha: 1
+                })];
+                pLayer.applyFilters();
+                hasUpdated = true;
+                if (this.canvas) this.canvas.renderAll();
+            }
+        }
+
+        if (!hasUpdated) {
+            // If the specific pattern layer wasn't found (e.g. not created yet), update full pattern
+            await this.updatePattern();
+        }
+
+        if (!this.isHistoryAction) this.saveHistory();
+    },
+
     async updatePattern() {
         this.isLoading = true;
-        this.layers.partPatterns = this.layers.partPatterns || {};
+
+        // Clear existing pattern layers from canvas and memory
+        if (this.layers.partPatterns) {
+            Object.values(this.layers.partPatterns).forEach(p => {
+                if (p && this.canvas) this.canvas.remove(p);
+            });
+        }
+        this.layers.partPatterns = {};
+
         for (const pid of Object.keys(this.partPatterns)) {
             const patternId = this.partActivePatterns[pid];
             const isEnabled = this.partPatterns[pid];
@@ -333,11 +444,20 @@ export default () => ({
 
             const pLayer = await this.loadImage(patternObj.url, {
                 selectable: false, evented: false, isSystemLayer: true, clipPath: maskGroup,
-                scaleX: this.partPatternScales[pid] || 1, scaleY: this.partPatternScales[pid] || 1, 
+                scaleX: this.partPatternScales[pid] || 1, scaleY: this.partPatternScales[pid] || 1,
                 angle: this.partPatternAngles[pid] || 0, flipX: this.partPatternFlipX[pid] || false, flipY: this.partPatternFlipY[pid] || false
             });
 
-            if (pLayer) { pLayer.filters = [new window.fabric.filters.BlendColor({ color: this.patternColor, mode: 'overlay', alpha: 1 })]; pLayer.applyFilters(); }
+            if (pLayer) {
+                // Use the specific color for THIS part
+                const pColor = this.activeState.partPatternColors[pid] || '#000000';
+                pLayer.filters = [new window.fabric.filters.BlendColor({
+                    color: pColor,
+                    mode: 'add',
+                    alpha: 1
+                })];
+                pLayer.applyFilters();
+            }
             this.layers.partPatterns[pid] = pLayer;
         }
         this.renderLayers(); this.isLoading = false; if (!this.isHistoryAction) this.saveHistory();
@@ -377,38 +497,54 @@ export default () => ({
 
     async getMockupClipMask() {
         const maskLayers = [];
-        const partIds = Object.keys(this.layers).filter(k => k !== 'shadows' && k !== 'highlights' && k !== 'partPatterns');
-        for (const pid of partIds) { if (this.layers[pid]) maskLayers.push(await this.layers[pid].clone(['isSystemLayer'])); }
+        const mockup = this.availableMockups.find(m => m.id === this.currentModel);
+        const partIds = mockup?.parts[this.currentView] || [];
+
+        for (const pid of partIds) {
+            if (this.layers[pid]) maskLayers.push(await this.layers[pid].clone(['isSystemLayer']));
+        }
         return maskLayers.length ? new window.fabric.Group(maskLayers, { absolutePositioned: true, originX: 'center', originY: 'center', left: 300, top: 300 }) : null;
     },
 
     renderLayers() {
         if (!this.canvas) return;
+        const wasHistoryAction = this.isHistoryAction;
+        this.isHistoryAction = true; // Protect against events during clear/add
         this.canvas.clear();
         const zOrder = this.currentView === 'pants' ? ['left', 'right', 'belt', 'list1', 'list2'] : ['body', 'left_sleeve', 'right_sleeve', 'left_cuff', 'right_cuff', 'collar', 'collar1'];
         zOrder.forEach(key => { if (this.layers[key]) this.canvas.add(this.layers[key]); });
-        if (this.layers.partPatterns) { Object.values(this.layers.partPatterns).forEach(p => { if (p) this.canvas.add(p); }); }
+
+        // Only render patterns that belong to the current view's parts
+        if (this.layers.partPatterns) {
+            zOrder.forEach(key => {
+                const p = this.layers.partPatterns[key];
+                if (p) this.canvas.add(p);
+            });
+        }
+
         this.designObjects.filter(obj => obj.view === this.currentView).forEach(obj => this.canvas.add(obj));
         if (this.layers.shadows) this.canvas.add(this.layers.shadows);
         if (this.layers.highlights) this.canvas.add(this.layers.highlights);
         this.canvas.renderAll();
+        this.isHistoryAction = wasHistoryAction;
     },
 
     async updateTextProperty(key, val) {
         const activeObj = this.canvas.getActiveObject();
-        this[key] = val; 
+        this[key] = val;
         if (activeObj && (activeObj.type === 'i-text' || activeObj.type === 'text')) {
             if (key === 'textInput') activeObj.set('text', val);
             if (key === 'activeColor') activeObj.set('fill', val);
             if (key === 'activeFont') { await document.fonts.load(`10px "${val}"`); activeObj.set({ fontFamily: val }); }
             if (key === 'textFontSize') activeObj.set({ fontSize: parseFloat(val) });
             if (key === 'textCharSpacing') activeObj.set({ charSpacing: parseFloat(val) });
-            
+
             if (key === 'textArc') {
                 activeObj.arc = parseFloat(val);
                 this.applyArcToText(activeObj);
             }
             this.canvas.renderAll();
+            this.saveHistory();
         }
     },
 
@@ -418,14 +554,14 @@ export default () => ({
         const arcValue = obj.arc || 0;
         const fontSize = obj.fontSize;
         const charSpacing = obj.charSpacing || 0;
-        
+
         // Reset styles for fresh render
         obj.set({ styles: {} });
         if (Math.abs(arcValue) < 1) return;
 
         // HIGHLY FLEXIBLE ARC LOGIC
         // Radius is inversely proportional to arc value
-        const radius = 20000 / arcValue; 
+        const radius = 20000 / arcValue;
         const circumference = 2 * Math.PI * Math.abs(radius);
         const anglePerChar = ((fontSize * 0.7) + (charSpacing / 10)) / radius;
         const totalAngle = anglePerChar * (charCount - 1);
@@ -436,10 +572,10 @@ export default () => ({
             const charAngle = startAngle + (i * anglePerChar);
             const xOffset = Math.sin(charAngle) * radius;
             const yOffset = radius - (Math.cos(charAngle) * radius);
-            
+
             // Invert Y for upside down arcs
-            const finalY = arcValue > 0 ? yOffset : yOffset; 
-            
+            const finalY = arcValue > 0 ? yOffset : yOffset;
+
             obj.styles[0][i] = {
                 deltaY: -finalY,
                 // Fabric.js character rotation is tricky, we'll focus on Y offset for now
@@ -461,7 +597,10 @@ export default () => ({
             cornerStyle: 'circle', cornerColor: '#6366f1', clipPath: clipMask, view: this.currentView, arc: this.textArc
         });
         if (this.textArc !== 0) this.applyArcToText(newText);
-        this.designObjects.push(newText); this.renderLayers(); this.canvas.setActiveObject(newText);
+        this.designObjects.push(newText);
+        this.renderLayers();
+        this.canvas.setActiveObject(newText);
+        this.saveHistory();
     },
 
     updateToolbar(e) {
@@ -476,7 +615,10 @@ export default () => ({
         const obj = this.canvas.getActiveObject(); if (!obj) return;
         const clone = await obj.clone(['clipPath', 'isSystemLayer', 'view', 'arc']);
         clone.set({ left: obj.left + 20, top: obj.top + 20 });
-        this.designObjects.push(clone); this.renderLayers(); this.canvas.setActiveObject(clone);
+        this.designObjects.push(clone);
+        this.renderLayers();
+        this.canvas.setActiveObject(clone);
+        this.saveHistory();
     },
 
     setupZoomEvents() {
@@ -500,7 +642,10 @@ export default () => ({
             const img = await window.fabric.FabricImage.fromURL(e.target.result);
             img.scaleToWidth(100); const clipMask = await this.getMockupClipMask();
             img.set({ left: 300, top: 250, originX: 'center', originY: 'center', cornerStyle: 'circle', cornerColor: '#6366f1', clipPath: clipMask, view: this.currentView });
-            this.designObjects.push(img); this.renderLayers(); this.canvas.setActiveObject(img);
+            this.designObjects.push(img);
+            this.renderLayers();
+            this.canvas.setActiveObject(img);
+            this.saveHistory();
         };
         reader.readAsDataURL(file);
     },
