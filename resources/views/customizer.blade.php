@@ -40,7 +40,16 @@
         @font-face { font-family: 'SC Freiburg'; src: url('/assets/fonts/SC Freiburg 25-26_Nero Design.woff2') format('woff2'); }
         @font-face { font-family: 'South Africa'; src: url('/assets/fonts/South Africa 25-26_Nero Design.woff2') format('woff2'); }
         @font-face { font-family: 'Spain WC 2026'; src: url('/assets/fonts/Spain WC 2026_Nero Design.woff2') format('woff2'); }
+        
+        /* Cropper CSS */
+        .cropper-container { background-color: #0f172a !important; }
+        .cropper-modal { background-color: #0f172a !important; opacity: 0.8 !important; }
+        .cropper-view-box { outline: 2px solid #6366f1 !important; outline-color: rgba(99, 102, 241, 0.75) !important; }
+        .cropper-face { background-color: transparent !important; }
     </style>
+    <!-- Cropper.js -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen h-[100dvh] overflow-hidden font-sans flex flex-col" x-data="customizer()" x-cloak>
 
@@ -111,10 +120,10 @@
                 </div>
 
                 <!-- Color & Parts -->
-                <div x-show="activeMenu === 'color'" x-transition class="space-y-8">
-                    <!-- PART SELECTOR (Like Screenshot) -->
+                <div x-show="activeMenu === 'color'" x-transition class="space-y-6">
+                    <!-- PART SELECTOR -->
                     <div>
-                        <label class="block text-[10px] font-medium text-slate-400 mb-4 uppercase tracking-widest">Pilih Bagian Jersey</label>
+                        <label class="block text-[10px] font-medium text-slate-400 mb-3 uppercase tracking-widest">Pilih Bagian Jersey</label>
                         <div class="space-y-1 bg-slate-950/50 rounded-xl border border-slate-800 overflow-hidden">
                             <template x-for="part in parts" :key="'part-'+part.id">
                                 <button 
@@ -123,22 +132,117 @@
                                     :class="activePart === part.id ? 'bg-indigo-500/5 border-l-2 border-l-indigo-500' : ''"
                                 >
                                     <div class="flex items-center gap-3">
-                                        <div class="w-5 h-5 rounded-full border border-white/10" :style="`background-color: ${partColors[part.id]}`"></div>
+                                        <div class="w-5 h-5 rounded-full border border-white/10 relative overflow-hidden flex-shrink-0">
+                                            <template x-if="partColorMode[part.id] === 'gradient' && activeState.partGradientEnabled[part.id]">
+                                                <div class="absolute inset-0 rounded-full" :style="`background: linear-gradient(135deg, ${activeState.partGradientColor1[part.id]}, ${activeState.partGradientColor2[part.id]})`"></div>
+                                            </template>
+                                            <template x-if="partColorMode[part.id] !== 'gradient' || !activeState.partGradientEnabled[part.id]">
+                                                <div class="absolute inset-0 rounded-full" :style="`background-color: ${partColors[part.id]}`"></div>
+                                            </template>
+                                        </div>
                                         <span class="text-xs font-medium" :class="activePart === part.id ? 'text-indigo-300' : 'text-slate-300'" x-text="part.label"></span>
                                     </div>
+                                    <span x-show="partColorMode[part.id] === 'gradient'" class="text-[8px] bg-indigo-600/20 text-indigo-400 px-1.5 py-0.5 rounded uppercase font-bold tracking-wider">Gradasi</span>
                                 </button>
                             </template>
                         </div>
                     </div>
 
-                    <!-- PALETTE -->
+
+
+                    <!-- WARNA SOLID DEFAULT -->
                     <div>
-                        <label class="block text-[10px] font-medium text-slate-400 mb-4 uppercase tracking-widest">Warna untuk <span class="text-indigo-400" x-text="parts.find(p => p.id === activePart)?.label"></span></label>
-                        <div class="grid grid-cols-6 gap-2">
-                            <template x-for="color in colors" :key="color">
-                                <button @click="updatePartColor(activePart, color)" :style="`background-color: ${color}`" :class="partColors[activePart] === color ? 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-slate-900 scale-110' : ''" class="w-6 h-6 md:w-8 md:h-8 rounded-full border border-white/5 transition-all"></button>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="currentColor" class="text-slate-400"><circle cx="12" cy="12" r="10"/></svg>
+                                <label class="text-xs font-semibold text-slate-200">Warna solid</label>
+                            </div>
+                            <button @click="showAllSolidColors = !showAllSolidColors" class="text-[10px] text-indigo-400 hover:text-indigo-300 transition-colors font-medium" x-text="showAllSolidColors ? 'Tutup' : 'Lihat semua'"></button>
+                        </div>
+                        <!-- 2 rows = 14 colors (7 cols), expands to all -->
+                        <div class="grid grid-cols-7 gap-1.5">
+                            <template x-for="(color, index) in solidColors" :key="'solid-'+color">
+                                <button 
+                                    x-show="showAllSolidColors || index < 14"
+                                    @click="updatePartColor(activePart, color)" 
+                                    :style="`background-color: ${color}`" 
+                                    :class="partColors[activePart] === color && partColorMode[activePart] === 'solid' ? 'ring-2 ring-indigo-400 ring-offset-2 ring-offset-slate-900 scale-110' : 'opacity-90 hover:opacity-100 hover:scale-105'" 
+                                    class="w-7 h-7 rounded-full border border-white/10 transition-all"
+                                ></button>
                             </template>
-                            <button @click="$refs.partPicker.click()" class="w-6 h-6 md:w-8 md:h-8 rounded-full border border-white/20 bg-slate-800 flex items-center justify-center relative"><span class="text-[10px]">+</span><input type="color" x-ref="partPicker" class="absolute inset-0 opacity-0 cursor-pointer" @input="updatePartColor(activePart, $event.target.value)"></button>
+                            <!-- Custom color picker always visible -->
+                            <button class="w-7 h-7 rounded-full border-2 border-dashed border-slate-600 hover:border-indigo-500 bg-slate-800 flex items-center justify-center relative transition-all hover:scale-105">
+                                <span class="text-slate-400 text-sm leading-none pointer-events-none">+</span>
+                                <input type="color" x-ref="partPicker" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full rounded-full" @input="updatePartColor(activePart, $event.target.value)">
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- WARNA GRADASI DEFAULT -->
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <div class="flex items-center gap-2">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-slate-400"><rect x="2" y="2" width="20" height="20" rx="4"/></svg>
+                                <label class="text-xs font-semibold text-slate-200">Warna gradasi</label>
+                            </div>
+                            <button @click="showAllGradients = !showAllGradients" class="text-[10px] text-indigo-400 hover:text-indigo-300 transition-colors font-medium" x-text="showAllGradients ? 'Tutup' : 'Lihat semua'"></button>
+                        </div>
+                        <!-- 2 rows = 14 presets (7 cols), expands to all — same size as solid circles -->
+                        <div class="grid grid-cols-7 gap-1.5">
+                            <template x-for="(gp, index) in gradientPresets" :key="gp.id">
+                                <button 
+                                    x-show="showAllGradients || index < 14"
+                                    @click="applyGradientPreset(activePart, gp)"
+                                    :class="partActiveGradientPreset[activePart] === gp.id ? 'ring-2 ring-indigo-400 ring-offset-2 ring-offset-slate-900 scale-110' : 'opacity-90 hover:opacity-100 hover:scale-105'"
+                                    class="w-7 h-7 rounded-full border border-white/10 transition-all"
+                                    :style="`background: ${gp.type === 'radial' ? 'radial-gradient(circle, ' + gp.color1 + ', ' + gp.color2 + ')' : 'linear-gradient(' + gp.angle + 'deg, ' + gp.color1 + ', ' + gp.color2 + ')'}`"
+                                ></button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- GRADIENT ADJUST CONTROLS — tampil hanya jika mode gradient aktif -->
+                    <div x-show="partColorMode[activePart] === 'gradient'" x-transition class="pt-4 border-t border-slate-800 space-y-5">
+                        <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest">Atur Gradasi</label>
+
+                        <!-- Type -->
+                        <div class="flex gap-2 p-1 bg-slate-950 rounded-lg border border-slate-800">
+                            <button @click="updatePartGradient(activePart, 'partGradientType', 'linear')" :class="activeState.partGradientType[activePart] === 'linear' ? 'bg-indigo-600 text-white' : 'text-slate-400'" class="flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all uppercase">Linear</button>
+                            <button @click="updatePartGradient(activePart, 'partGradientType', 'radial')" :class="activeState.partGradientType[activePart] === 'radial' ? 'bg-indigo-600 text-white' : 'text-slate-400'" class="flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all uppercase">Radial</button>
+                        </div>
+
+                        <!-- Colors -->
+                        <div class="grid grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[9px] text-slate-500 mb-2 uppercase">Warna 1</label>
+                                <label class="flex items-center gap-2 cursor-pointer group relative">
+                                    <div class="w-9 h-9 rounded-lg border-2 border-white/10 group-hover:border-indigo-500 transition-colors flex-shrink-0" :style="`background-color: ${activeState.partGradientColor1[activePart]}`"></div>
+                                    <span class="text-[10px] text-slate-400 font-mono" x-text="activeState.partGradientColor1[activePart]"></span>
+                                    <input type="color" :value="activeState.partGradientColor1[activePart]" @input="updatePartGradient(activePart, 'partGradientColor1', $event.target.value)" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer">
+                                </label>
+                            </div>
+                            <div>
+                                <label class="block text-[9px] text-slate-500 mb-2 uppercase">Warna 2</label>
+                                <label class="flex items-center gap-2 cursor-pointer group relative">
+                                    <div class="w-9 h-9 rounded-lg border-2 border-white/10 group-hover:border-indigo-500 transition-colors flex-shrink-0" :style="`background-color: ${activeState.partGradientColor2[activePart]}`"></div>
+                                    <span class="text-[10px] text-slate-400 font-mono" x-text="activeState.partGradientColor2[activePart]"></span>
+                                    <input type="color" :value="activeState.partGradientColor2[activePart]" @input="updatePartGradient(activePart, 'partGradientColor2', $event.target.value)" class="absolute inset-0 opacity-0 w-full h-full cursor-pointer">
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Preview strip -->
+                        <div class="h-6 rounded-full border border-white/10 transition-all" 
+                             :style="`background: ${activeState.partGradientType[activePart] === 'radial' ? 'radial-gradient(circle, ' + activeState.partGradientColor1[activePart] + ', ' + activeState.partGradientColor2[activePart] + ')' : 'linear-gradient(' + activeState.partGradientAngle[activePart] + 'deg, ' + activeState.partGradientColor1[activePart] + ', ' + activeState.partGradientColor2[activePart] + ')'}`">
+                        </div>
+
+                        <!-- Angle (only for linear) -->
+                        <div x-show="activeState.partGradientType[activePart] === 'linear'" x-transition>
+                            <label class="flex justify-between text-[10px] font-medium text-slate-400 mb-2 uppercase tracking-widest">
+                                <span>Sudut Gradasi</span>
+                                <span class="text-indigo-400" x-text="activeState.partGradientAngle[activePart] + '°'"></span>
+                            </label>
+                            <input type="range" min="0" max="360" :value="activeState.partGradientAngle[activePart]" @input="updatePartGradient(activePart, 'partGradientAngle', $event.target.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
                         </div>
                     </div>
                 </div>
@@ -193,13 +297,83 @@
                             </template>
                         </div>
                         
-                        <!-- Pattern Color -->
-                        <label class="block text-[10px] font-medium text-slate-400 mb-3 uppercase tracking-widest">Warna Motif</label>
-                        <div class="grid grid-cols-6 gap-2">
-                            <template x-for="color in colors" :key="'p'+color">
-                                <button @click="updatePatternColor(color)" :style="`background-color: ${color}`" :class="patternColor === color ? 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-slate-900 scale-110' : ''" class="w-6 h-6 rounded-full border border-white/5 transition-all"></button>
-                            </template>
-                            <button @click="$refs.patternPicker.click()" class="w-6 h-6 rounded-full border border-white/20 bg-slate-800 flex items-center justify-center relative"><span class="text-[10px]">+</span><input type="color" x-ref="patternPicker" class="absolute inset-0 opacity-0 cursor-pointer" @input="updatePatternColor($event.target.value)"></button>
+                        <!-- Pattern Color — solid palette -->
+                        <div>
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Warna Motif</label>
+                                <button @click="showAllPatternColors = !showAllPatternColors" class="text-[10px] text-indigo-400 hover:text-indigo-300 transition-colors font-medium" x-text="showAllPatternColors ? 'Tutup' : 'Lihat semua'"></button>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1.5 mb-3">
+                                <template x-for="(color, index) in solidColors" :key="'pat-'+color">
+                                    <button
+                                        x-show="showAllPatternColors || index < 14"
+                                        @click="updatePatternColor(color)"
+                                        :style="`background-color: ${color}`"
+                                        :class="patternColor === color ? 'ring-2 ring-indigo-400 ring-offset-2 ring-offset-slate-900 scale-110' : 'opacity-90 hover:opacity-100 hover:scale-105'"
+                                        class="w-7 h-7 rounded-full border border-white/10 transition-all"
+                                    ></button>
+                                </template>
+                                <button class="w-7 h-7 rounded-full border-2 border-dashed border-slate-600 hover:border-indigo-500 bg-slate-800 flex items-center justify-center relative transition-all hover:scale-105">
+                                    <span class="text-slate-400 text-sm leading-none pointer-events-none">+</span>
+                                    <input type="color" x-ref="patternPicker" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full rounded-full" @input="updatePatternColor($event.target.value)">
+                                </button>
+                            </div>
+                            <!-- Gradient preset palette for pattern -->
+                            <div class="flex items-center justify-between mb-2">
+                                <label class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Gradasi Motif</label>
+                                <button @click="showAllPatternGradients = !showAllPatternGradients" class="text-[10px] text-indigo-400 hover:text-indigo-300 transition-colors font-medium" x-text="showAllPatternGradients ? 'Tutup' : 'Lihat semua'"></button>
+                            </div>
+                            <div class="grid grid-cols-7 gap-1.5 mb-4">
+                                <template x-for="(gp, index) in gradientPresets" :key="'patgp-'+gp.id">
+                                    <button
+                                        x-show="showAllPatternGradients || index < 14"
+                                        @click="updatePatternGradientFromPreset(gp)"
+                                        :class="patternActiveGradientPreset === gp.id ? 'ring-2 ring-indigo-400 ring-offset-2 ring-offset-slate-900 scale-110' : 'opacity-90 hover:opacity-100 hover:scale-105'"
+                                        class="w-7 h-7 rounded-full border border-white/10 transition-all"
+                                        :style="`background: ${gp.type === 'radial' ? 'radial-gradient(circle, ' + gp.color1 + ', ' + gp.color2 + ')' : 'linear-gradient(' + gp.angle + 'deg, ' + gp.color1 + ', ' + gp.color2 + ')'}`"
+                                    ></button>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- PART PATTERN GRADIENT CONTROLS -->
+                        <div x-show="partPatternGradientEnabled[activePatternPart]" x-transition class="pt-4 border-t border-slate-800 space-y-5">
+                            <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest">Atur Gradasi Motif</label>
+                            
+                            <div>
+                                <!-- Type Selection -->
+                                <div class="flex gap-2 p-1 bg-slate-950 rounded-lg border border-slate-800">
+                                    <button @click="updatePatternGradient('partPatternGradientType', 'linear')" :class="partPatternGradientType[activePatternPart] === 'linear' ? 'bg-indigo-600 text-white' : 'text-slate-400'" class="flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all uppercase">Linear</button>
+                                    <button @click="updatePatternGradient('partPatternGradientType', 'radial')" :class="partPatternGradientType[activePatternPart] === 'radial' ? 'bg-indigo-600 text-white' : 'text-slate-400'" class="flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all uppercase">Radial</button>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label class="block text-[9px] text-slate-500 mb-2 uppercase">Warna 1</label>
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 rounded-lg border border-white/10" :style="`background-color: ${partPatternGradientColor1[activePatternPart]}`"></div>
+                                            <input type="color" :value="partPatternGradientColor1[activePatternPart]" @input="updatePatternGradient('partPatternGradientColor1', $event.target.value)" class="w-full h-8 opacity-0 absolute cursor-pointer">
+                                            <span class="text-[10px] text-slate-400" x-text="partPatternGradientColor1[activePatternPart]"></span>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[9px] text-slate-500 mb-2 uppercase">Warna 2</label>
+                                        <div class="flex items-center gap-2">
+                                            <div class="w-8 h-8 rounded-lg border border-white/10" :style="`background-color: ${partPatternGradientColor2[activePatternPart]}`"></div>
+                                            <input type="color" :value="partPatternGradientColor2[activePatternPart]" @input="updatePatternGradient('partPatternGradientColor2', $event.target.value)" class="w-full h-8 opacity-0 absolute cursor-pointer">
+                                            <span class="text-[10px] text-slate-400" x-text="partPatternGradientColor2[activePatternPart]"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div x-show="partPatternGradientType[activePatternPart] === 'linear'">
+                                    <label class="flex justify-between text-[10px] font-medium text-slate-400 mb-3 uppercase tracking-widest">
+                                        <span>Sudut Gradasi</span>
+                                        <span class="text-indigo-400" x-text="partPatternGradientAngle[activePatternPart] + '°'"></span>
+                                    </label>
+                                    <input type="range" min="0" max="360" :value="partPatternGradientAngle[activePatternPart]" @input="updatePatternGradient('partPatternGradientAngle', $event.target.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -207,12 +381,43 @@
                     <div class="space-y-6 pt-4 border-t border-slate-800">
                         <div class="grid grid-cols-2 gap-4">
                             <div class="space-y-3">
-                                <label class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Scale: <span class="text-indigo-400" x-text="Number(partPatternScales[activePatternPart] || 1).toFixed(1)"></span></label>
-                                <input type="range" min="0.5" max="8" step="0.1" x-model.number="partPatternScales[activePatternPart]" @input="updatePatternScale($event.target.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                                <div class="flex justify-between items-center">
+                                    <label class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Scale: <span class="text-indigo-400" x-text="Number(partPatternScales[activePatternPart] || 0.3).toFixed(1)"></span></label>
+                                    <button @click="resetPatternProperty('scale')" class="p-1 hover:text-indigo-400 text-slate-500 transition-colors" title="Reset Scale">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                                    </button>
+                                </div>
+                                <input type="range" min="0.3" max="8" step="0.3" x-model.number="partPatternScales[activePatternPart]" @input="updatePatternScale($event.target.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
                             </div>
                             <div class="space-y-3">
-                                <label class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Angle: <span class="text-indigo-400" x-text="partPatternAngles[activePatternPart]"></span>°</label>
+                                <div class="flex justify-between items-center">
+                                    <label class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Angle: <span class="text-indigo-400" x-text="partPatternAngles[activePatternPart]"></span>°</label>
+                                    <button @click="resetPatternProperty('angle')" class="p-1 hover:text-indigo-400 text-slate-500 transition-colors" title="Reset Angle">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                                    </button>
+                                </div>
                                 <input type="range" min="0" max="360" step="1" x-model="partPatternAngles[activePatternPart]" @input="updatePatternAngle($event.target.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <label class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Posisi X: <span class="text-indigo-400" x-text="partPatternX[activePatternPart]"></span></label>
+                                    <button @click="resetPatternProperty('X')" class="p-1 hover:text-indigo-400 text-slate-500 transition-colors" title="Reset Posisi X">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                                    </button>
+                                </div>
+                                <input type="range" min="-300" max="900" step="1" x-model="partPatternX[activePatternPart]" @input="updatePatternPosition('X', $event.target.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                            </div>
+                            <div class="space-y-3">
+                                <div class="flex justify-between items-center">
+                                    <label class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Posisi Y: <span class="text-indigo-400" x-text="partPatternY[activePatternPart]"></span></label>
+                                    <button @click="resetPatternProperty('Y')" class="p-1 hover:text-indigo-400 text-slate-500 transition-colors" title="Reset Posisi Y">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                                    </button>
+                                </div>
+                                <input type="range" min="-300" max="900" step="1" x-model="partPatternY[activePatternPart]" @input="updatePatternPosition('Y', $event.target.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
                             </div>
                         </div>
 
@@ -238,10 +443,13 @@
                 </div>
 
                 <!-- Logo -->
-                <div x-show="activeMenu === 'logo'" x-transition>
-                    <div @click="$refs.logoInput.click()" class="border-2 border-dashed border-slate-800 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-indigo-500/50 transition-colors">
-                        <span class="text-xs font-medium text-slate-300">Upload Logo Baru</span>
-                        <input type="file" x-ref="logoInput" class="hidden" @change="handleLogoUpload($event)" accept="image/*">
+                <div x-show="activeMenu === 'logo'" x-transition class="space-y-6">
+                    <div @click="triggerLogoUpload()" class="border-2 border-dashed border-slate-800 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-indigo-500/50 transition-colors bg-slate-950/30 group">
+                        <div class="w-12 h-12 rounded-full bg-slate-800 flex items-center justify-center mb-3 group-hover:bg-indigo-500/20 transition-colors">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                        </div>
+                        <span class="text-xs font-bold text-slate-200 uppercase tracking-wider">Upload Logo / Foto</span>
+                        <p class="text-[10px] text-slate-500 mt-1 uppercase">Unggah logo Anda dalam format JPG atau PNG (latar belakang transparan disarankan).</p>
                     </div>
                 </div>
 
@@ -276,12 +484,81 @@
 
                     <!-- Colors -->
                     <div>
-                        <label class="block text-[10px] font-medium text-slate-400 mb-3 uppercase tracking-widest">Warna Teks</label>
-                        <div class="grid grid-cols-6 gap-2">
-                            <template x-for="color in colors" :key="'text'+color">
-                                <button @click="updateTextProperty('activeColor', color)" :style="`background-color: ${color}`" :class="activeColor === color ? 'ring-2 ring-indigo-500 ring-offset-2 ring-offset-slate-900 scale-110' : ''" class="w-6 h-6 rounded-full border border-white/5 transition-all"></button>
+                        <!-- Solid palette -->
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Warna Teks</label>
+                            <button @click="showAllTextColors = !showAllTextColors" class="text-[10px] text-indigo-400 hover:text-indigo-300 transition-colors font-medium" x-text="showAllTextColors ? 'Tutup' : 'Lihat semua'"></button>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1.5 mb-3">
+                            <template x-for="(color, index) in solidColors" :key="'txt-'+color">
+                                <button
+                                    x-show="showAllTextColors || index < 14"
+                                    @click="updateTextProperty('activeColor', color)"
+                                    :style="`background-color: ${color}`"
+                                    :class="activeColor === color ? 'ring-2 ring-indigo-400 ring-offset-2 ring-offset-slate-900 scale-110' : 'opacity-90 hover:opacity-100 hover:scale-105'"
+                                    class="w-7 h-7 rounded-full border border-white/10 transition-all"
+                                ></button>
                             </template>
-                            <button @click="$refs.textPicker.click()" class="w-6 h-6 rounded-full border border-white/20 bg-slate-800 flex items-center justify-center relative"><span class="text-[10px]">+</span><input type="color" x-ref="textPicker" class="absolute inset-0 opacity-0 cursor-pointer" @input="updateTextProperty('activeColor', $event.target.value)"></button>
+                            <button class="w-7 h-7 rounded-full border-2 border-dashed border-slate-600 hover:border-indigo-500 bg-slate-800 flex items-center justify-center relative transition-all hover:scale-105">
+                                <span class="text-slate-400 text-sm leading-none pointer-events-none">+</span>
+                                <input type="color" x-ref="textPicker" class="absolute inset-0 opacity-0 cursor-pointer w-full h-full rounded-full" @input="updateTextProperty('activeColor', $event.target.value)">
+                            </button>
+                        </div>
+                        <!-- Gradient preset palette for text -->
+                        <div class="flex items-center justify-between mb-2">
+                            <label class="text-[10px] font-medium text-slate-400 uppercase tracking-widest">Gradasi Teks</label>
+                            <button @click="showAllTextGradients = !showAllTextGradients" class="text-[10px] text-indigo-400 hover:text-indigo-300 transition-colors font-medium" x-text="showAllTextGradients ? 'Tutup' : 'Lihat semua'"></button>
+                        </div>
+                        <div class="grid grid-cols-7 gap-1.5">
+                            <template x-for="(gp, index) in gradientPresets" :key="'txtgp-'+gp.id">
+                                <button
+                                    x-show="showAllTextGradients || index < 14"
+                                    @click="applyTextGradientPreset(gp)"
+                                    :class="textActiveGradientPreset === gp.id ? 'ring-2 ring-indigo-400 ring-offset-2 ring-offset-slate-900 scale-110' : 'opacity-90 hover:opacity-100 hover:scale-105'"
+                                    class="w-7 h-7 rounded-full border border-white/10 transition-all"
+                                    :style="`background: ${gp.type === 'radial' ? 'radial-gradient(circle, ' + gp.color1 + ', ' + gp.color2 + ')' : 'linear-gradient(' + gp.angle + 'deg, ' + gp.color1 + ', ' + gp.color2 + ')'}`"
+                                ></button>
+                            </template>
+                        </div>
+                    </div>
+
+                    <!-- TEXT GRADIENT CONTROLS -->
+                    <div x-show="textGradientEnabled" x-transition class="pt-4 border-t border-slate-800 space-y-5">
+                        <label class="block text-[10px] font-medium text-slate-400 uppercase tracking-widest">Atur Gradasi Teks</label>
+
+                        <div>
+                            <!-- Type Selection -->
+                            <div class="flex gap-2 p-1 bg-slate-950 rounded-lg border border-slate-800">
+                                <button @click="updateTextProperty('textGradientType', 'linear')" :class="textGradientType === 'linear' ? 'bg-indigo-600 text-white' : 'text-slate-400'" class="flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all uppercase">Linear</button>
+                                <button @click="updateTextProperty('textGradientType', 'radial')" :class="textGradientType === 'radial' ? 'bg-indigo-600 text-white' : 'text-slate-400'" class="flex-1 py-1.5 text-[10px] font-bold rounded-md transition-all uppercase">Radial</button>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-[9px] text-slate-500 mb-2 uppercase">Warna 1</label>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-lg border border-white/10" :style="`background-color: ${textGradientColor1}`"></div>
+                                        <input type="color" x-model="textGradientColor1" @input="updateTextProperty('textGradientColor1', $event.target.value)" class="w-full h-8 opacity-0 absolute cursor-pointer">
+                                        <span class="text-[10px] text-slate-400" x-text="textGradientColor1"></span>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block text-[9px] text-slate-500 mb-2 uppercase">Warna 2</label>
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-8 h-8 rounded-lg border border-white/10" :style="`background-color: ${textGradientColor2}`"></div>
+                                        <input type="color" x-model="textGradientColor2" @input="updateTextProperty('textGradientColor2', $event.target.value)" class="w-full h-8 opacity-0 absolute cursor-pointer">
+                                        <span class="text-[10px] text-slate-400" x-text="textGradientColor2"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div x-show="textGradientType === 'linear'">
+                                <label class="flex justify-between text-[10px] font-medium text-slate-400 mb-3 uppercase tracking-widest">
+                                    <span>Sudut Gradasi</span>
+                                    <span class="text-indigo-400" x-text="textGradientAngle + '°'"></span>
+                                </label>
+                                <input type="range" min="0" max="360" x-model="textGradientAngle" @input="updateTextProperty('textGradientAngle', $event.target.value)" class="w-full h-1.5 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-indigo-500">
+                            </div>
                         </div>
                     </div>
 
@@ -316,8 +593,7 @@
         <main class="flex-1 bg-slate-100 relative flex flex-col items-center justify-center p-4 min-h-[400px] order-1 md:order-3 mb-16 md:mb-0">
             <div class="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10 pointer-events-none"></div>
 
-            <!-- VIEW SELECTOR -->
-            <div class="absolute top-6 left-1/2 -translate-x-1/2 z-40">
+            <div class="absolute top-6 left-1/2 -translate-x-1/2 z-40 flex items-center gap-2">
                 <div class="bg-white/80 backdrop-blur-md p-1 rounded-2xl border border-slate-200 shadow-xl flex gap-1">
                     <template x-for="v in [
                         {id: 'front', label: 'Depan'},
@@ -332,32 +608,46 @@
                         ></button>
                     </template>
                 </div>
+
+                <!-- COPY DESIGN BUTTON -->
+                <button 
+                    x-show="currentView === 'back' || currentView === 'pants'" x-cloak
+                    @click="confirmCopyFromFront()"
+                    class="bg-indigo-600/90 text-white p-2 rounded-xl text-xs font-bold shadow-xl border border-white/10 hover:bg-indigo-500 transition-all flex items-center gap-2 h-full"
+                    title="Salin pola & warna dari Depan"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                    <span class="hidden md:inline">Salin dari Depan</span>
+                </button>
             </div>
             
-            <!-- HISTORY, ZOOM & SAVE CONTROLS -->
-            <div class="absolute bottom-20 md:bottom-6 right-6 z-40 flex flex-col gap-3 items-end">
-                <!-- Primary Action: SAVE (New Position) -->
-                <button class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold px-6 py-3 rounded-full shadow-2xl flex items-center gap-2 transition-all hover:scale-105 active:scale-95 text-xs md:text-sm uppercase tracking-widest mb-2 border border-white/10 group">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:rotate-12 transition-transform"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                    <!-- <span>Save Desain</span> -->
+            <!-- HISTORY, ZOOM & SAVE CONTROLS (Vertical Stack) -->
+            <div class="absolute bottom-20 md:bottom-6 right-6 z-40 flex flex-col gap-2 items-end">
+                <!-- Save -->
+                <button class="bg-indigo-600 hover:bg-indigo-500 text-white w-12 h-12 rounded-2xl shadow-2xl flex items-center justify-center transition-all hover:scale-105 active:scale-95 border border-white/10 group" title="Simpan Desain">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="group-hover:rotate-12 transition-transform"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                 </button>
 
-                <div class="flex flex-row md:flex-col gap-2">
-                    <div class="flex gap-2">
-                        <button @click="undo()" :disabled="undoStack.length <= 1" class="w-10 h-10 bg-slate-800/90 backdrop-blur-md text-slate-100 rounded-xl flex items-center justify-center hover:bg-indigo-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-xl border border-white/5" title="Undo (Ctrl+Z)">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
-                        </button>
-                        <button @click="redo()" :disabled="redoStack.length === 0" class="w-10 h-10 bg-slate-800/90 backdrop-blur-md text-slate-100 rounded-xl flex items-center justify-center hover:bg-indigo-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-xl border border-white/5" title="Redo (Ctrl+Shift+Z)">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
-                        </button>
-                    </div>
+                <!-- Undo -->
+                <button @click="undo()" :disabled="undoStack.length <= 1" class="w-12 h-12 bg-slate-800/90 backdrop-blur-md text-slate-100 rounded-2xl flex items-center justify-center hover:bg-indigo-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-xl border border-white/5" title="Undo (Ctrl+Z)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+                </button>
 
-                    <div class="flex gap-2">
-                        <button @click="zoom(0.2)" class="w-10 h-10 bg-slate-800/90 backdrop-blur-md text-white rounded-xl flex items-center justify-center hover:bg-indigo-600 transition-colors shadow-xl border border-white/5 text-xl font-bold">+</button>
-                        <button @click="zoom(-0.2)" class="w-10 h-10 bg-slate-800/90 backdrop-blur-md text-white rounded-xl flex items-center justify-center hover:bg-indigo-600 transition-colors shadow-xl border border-white/5 text-xl font-bold">-</button>
-                        <button @click="resetZoom()" class="px-3 h-10 bg-rose-600/90 backdrop-blur-md text-white rounded-xl flex items-center justify-center hover:bg-rose-500 transition-colors shadow-xl border border-white/5 text-[10px] font-bold uppercase tracking-widest leading-none">Reset</button>
-                    </div>
-                </div>
+                <!-- Redo -->
+                <button @click="redo()" :disabled="redoStack.length === 0" class="w-12 h-12 bg-slate-800/90 backdrop-blur-md text-slate-100 rounded-2xl flex items-center justify-center hover:bg-indigo-600 disabled:opacity-30 disabled:cursor-not-allowed transition-all shadow-xl border border-white/5" title="Redo (Ctrl+Shift+Z)">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+                </button>
+
+                <!-- Zoom In -->
+                <button @click="zoom(0.2)" class="w-12 h-12 bg-slate-800/90 backdrop-blur-md text-white rounded-2xl flex items-center justify-center hover:bg-indigo-600 transition-colors shadow-xl border border-white/5 text-xl font-bold" title="Zoom In">+</button>
+                
+                <!-- Zoom Out -->
+                <button @click="zoom(-0.2)" class="w-12 h-12 bg-slate-800/90 backdrop-blur-md text-white rounded-2xl flex items-center justify-center hover:bg-indigo-600 transition-colors shadow-xl border border-white/5 text-xl font-bold" title="Zoom Out">-</button>
+                
+                <!-- Reset Zoom -->
+                <button @click="resetZoom()" class="w-12 h-12 bg-rose-600/90 backdrop-blur-md text-white rounded-2xl flex items-center justify-center hover:bg-rose-500 transition-colors shadow-xl border border-white/5" title="Reset Zoom">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                </button>
             </div>
 
             <div class="relative bg-white/50 rounded-[1.5rem] md:rounded-[2.5rem] p-4 md:p-12 backdrop-blur-md border border-slate-300 shadow-2xl w-full max-w-[600px] aspect-square flex items-center justify-center transition-all">
@@ -395,6 +685,17 @@
                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
                         <span class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-[8px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Hapus</span>
                     </button>
+
+                    <!-- Cropper button temporarily hidden per user request -->
+                    <!--
+                    <div x-show="canvas?.getActiveObject() && (canvas?.getActiveObject()?.type === 'image' || canvas?.getActiveObject()?._element)" class="contents">
+                        <div class="w-[1px] h-4 bg-slate-700 mx-1"></div>
+                        <button @click="openCropper()" class="p-2 text-indigo-400 hover:text-white hover:bg-indigo-500 rounded-full transition-all group relative">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10V5a2 2 0 0 1 2-2h7l5 5v11a2 2 0 0 1-2 2h-5"/><polyline points="14 3 14 8 20 8"/><path d="M3 14.28a5 5 0 0 1 5.42-3.72c2.47.3 4.58 2.21 4.58 4.72 0 2.5-1.5 4-3.5 4.5"/><path d="M3 14.28C3 17 5 19 8 19s5-2 5-4.72c0-2.5-2.1-4.42-4.58-4.72a5 5 0 0 0-5.42 3.72z"/></svg>
+                            <span class="absolute -top-8 left-1/2 -translate-x-1/2 bg-slate-800 text-[8px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Pangkas</span>
+                        </button>
+                    </div>
+                    -->
                 </div>
 
                 <div class="w-full h-full flex items-center justify-center overflow-hidden rounded-xl">
@@ -402,6 +703,74 @@
                 </div>
             </div>
         </main>
+    </div>
+
+    <!-- MODAL CROPPER -->
+    <div x-show="showCropper" x-cloak class="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-slate-950/90 backdrop-blur-lg">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-4 border-b border-slate-800 flex justify-between items-center">
+                <h3 class="font-bold text-slate-100">Pangkas Gambar</h3>
+                <button @click="cancelCrop()" class="p-2 text-slate-400 hover:text-white"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            </div>
+            <div class="flex-1 bg-slate-950 relative overflow-hidden flex items-center justify-center min-h-[300px]">
+                <img id="cropper-image" class="max-w-full max-h-full block">
+            </div>
+            <div class="p-6 border-t border-slate-800 flex justify-end gap-3 bg-slate-900/50">
+                <button @click="cancelCrop()" class="px-6 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition-all font-medium">Batal</button>
+                <button @click="applyCrop()" class="px-8 py-2.5 rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 shadow-lg shadow-indigo-600/20 transition-all font-bold">Terapkan Pangkasan</button>
+            </div>
+        </div>
+    </div>
+    <!-- MODAL KONFIRMASI SALIN DARI DEPAN -->
+    <div 
+        x-show="showCopyConfirmModal" 
+        x-cloak
+        x-transition:enter="transition ease-out duration-200"
+        x-transition:enter-start="opacity-0"
+        x-transition:enter-end="opacity-100"
+        x-transition:leave="transition ease-in duration-150"
+        x-transition:leave-start="opacity-100"
+        x-transition:leave-end="opacity-0"
+        class="fixed inset-0 z-[120] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md"
+    >
+        <div 
+            x-show="showCopyConfirmModal"
+            x-transition:enter="transition ease-out duration-200"
+            x-transition:enter-start="opacity-0 scale-95 translate-y-2"
+            x-transition:enter-end="opacity-100 scale-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-150"
+            x-transition:leave-start="opacity-100 scale-100 translate-y-0"
+            x-transition:leave-end="opacity-0 scale-95 translate-y-2"
+            class="bg-slate-900 border border-slate-700 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl"
+        >
+            <!-- Header -->
+            <div class="p-5 border-b border-slate-800 flex items-center gap-3">
+                <div class="w-9 h-9 rounded-xl bg-indigo-500/15 flex items-center justify-center flex-shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="text-indigo-400"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                </div>
+                <h3 class="font-bold text-slate-100 text-sm">Salin dari Bagian Depan</h3>
+            </div>
+            <!-- Body -->
+            <div class="p-5">
+                <p class="text-sm text-slate-300 leading-relaxed">Yakin ingin menyalin setelan <span class="text-indigo-400 font-semibold">Warna dan Motif</span> dari bagian Depan ke bagian ini?</p>
+                <p class="text-xs text-slate-500 mt-2">Teks dan Logo pada bagian ini tidak akan terpengaruh atau terhapus.</p>
+            </div>
+            <!-- Footer -->
+            <div class="px-5 pb-5 flex gap-3 justify-end">
+                <button 
+                    @click="showCopyConfirmModal = false"
+                    class="px-5 py-2.5 rounded-xl border border-slate-700 text-slate-300 hover:bg-slate-800 transition-all text-xs font-semibold"
+                >
+                    Batal
+                </button>
+                <button 
+                    @click="copyDesignFromFront()"
+                    class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold shadow-lg shadow-indigo-600/20 transition-all"
+                >
+                    Ya, Salin Sekarang
+                </button>
+            </div>
+        </div>
     </div>
 
 </body>
